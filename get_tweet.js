@@ -9,30 +9,31 @@ const T = new Twit({
   strictSSL: true, // optional - requires SSL certificates to be valid.
 });
 
-function get_timeline(screen_name, since_id, count, max_id) {
-  T.get(
-    "statuses/user_timeline",
-    {
-      screen_name: screen_name,
-      since_id: since_id,
-      count: count,
-      max_id: max_id,
-    },
-    function (err, data, response) {
+module.exports = {
+  get_timeline: function (screen_name, callback) {
+    T.get(
+      "statuses/user_timeline",
+      {
+        screen_name: screen_name,
+        // since_id: since_id,
+        // count: count,
+      },
+      function (err, data, response) {
+        console.log(data);
+        callback(err, data);
+      }
+    );
+  },
+
+  // TODO: Need to find out the correct API
+  get_retweet_count: function (screen_name) {
+    T.get("statuses/mentions_timeline", { screen_name: screen_name }, function (
+      err,
+      data,
+      response
+    ) {
       console.log(data);
-    }
-  );
-}
-
-// TODO: Need to find out the correct API
-function get_retweet_count(screen_name) {
-  T.get("statuses/mentions_timeline", { screen_name: screen_name }, function (
-    err,
-    data,
-    response
-  ) {
-    console.log(data);
-  });
-}
-
-// export default get_retweet_count;
+      return data;
+    });
+  },
+};

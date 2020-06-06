@@ -6,6 +6,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
 const morgan = require("morgan");
+const get_tweet = require("./get_tweet");
 
 // configure app
 app.use(morgan("dev")); // log requests to the console
@@ -74,7 +75,7 @@ router
 
   // get the status with that id
   .get(function (req, res) {
-    Status.findById(req.params.status_id, function (err, status) {
+    get_tweet.get_timeline(req.params.status_id, function (err, status) {
       if (err) res.send(err);
       res.json(status);
     });
