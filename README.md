@@ -10,8 +10,8 @@ Using the new Express 4.0 Router to build an API
 
 - Clone the repo: `git clone git@github.com:cmatthey/icdr-api`
 - Install dependencies: `yarn install`
+- Assuming an instance of Mongo is set up `sudo systemctl start mongod`
 - Start the server: `yarn start`
-- Assuming an instance of Mongo is already available
 
 ## Testing the API
 
