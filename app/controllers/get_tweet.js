@@ -25,15 +25,30 @@ module.exports = {
     );
   },
 
+  get_timeline_in_csv: function (screen_name, callback) {
+    T.get(
+      "statuses/user_timeline",
+      {
+        screen_name: screen_name,
+        // since_id: since_id,
+        // count: count,
+      },
+      function (err, data, response) {
+        console.log(data);
+        callback(err, data);
+      }
+    );
+  },
+
   // TODO: Need to find out the correct API
-  get_retweet_count: function (screen_name) {
+  get_retweet_count: function (screen_name, callback) {
     T.get("statuses/mentions_timeline", { screen_name: screen_name }, function (
       err,
       data,
       response
     ) {
       console.log(data);
-      return data;
+      callback(err, data);
     });
   },
 };
