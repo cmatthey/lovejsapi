@@ -6,7 +6,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const morgan = require("morgan");
-const get_tweet = require("./controllers/get_tweet");
+const twit = require("./controllers/twit");
 const statusRouter = require("./routes/status-router");
 const db = require("../db");
 
