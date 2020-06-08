@@ -1,44 +1,27 @@
-// BASE SETUP
-// =============================================================================
-
-// call the packages we need
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const morgan = require("morgan");
-const twit = require("./controllers/twit");
 const statusRouter = require("./routes/status-router");
-const db = require("../db");
+// const db = require("../db"); //Not in use
+// const Status = require("./models/status"); //Not in use
 
 const app = express();
-// configure app
 app.use(morgan("dev")); // log requests to the console
-// configure body parser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(bodyParser.json());
 
-const port = process.env.PORT || 3000; // set our port
+const port = process.env.PORT || 3000;
 
-// Status models lives here
-const Status = require("./models/status");
-
-// ROUTES FOR OUR API
-// =============================================================================
-
-// create our router
+// middleware to use for all requests // TODO: need to review
 const router = express.Router();
-
-// middleware to use for all requests
 router.use(function (req, res, next) {
   // do logging
   console.log("Something is happening.");
   next();
 });
 
-// REGISTER OUR ROUTES -------------------------------
 app.use("/api", statusRouter);
 
-// START THE SERVER
-// =============================================================================
 app.listen(port, () => console.log(`API server is started on port ${port}`));
