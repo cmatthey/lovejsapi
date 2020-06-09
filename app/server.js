@@ -2,9 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const morgan = require("morgan");
-const statusRouter = require("./routes/status-router");
+const tweetRouter = require("./routes/tweet-router");
 // const db = require("../db"); //Not in use
-// const Status = require("./models/status"); //Not in use
+// const Status = require("./models/tweet "); //Not in use
 
 const app = express();
 app.use(morgan("dev")); // log requests to the console
@@ -22,6 +22,6 @@ router.use(function (req, res, next) {
   next();
 });
 
-app.use("/api", statusRouter);
+app.use("/api", tweetRouter);
 
 app.listen(port, () => console.log(`API server is started on port ${port}`));

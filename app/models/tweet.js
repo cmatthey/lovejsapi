@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const StatusSchema = new Schema({
+const TweetSchema = new Schema({
   display_name: String,
   screen_name: String,
   link: String,
@@ -12,4 +12,4 @@ const StatusSchema = new Schema({
   text: String,
 });
 
-module.exports = mongoose.model("Status", StatusSchema);
+module.exports = mongoose.model("Status", TweetSchema);
