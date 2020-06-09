@@ -1,5 +1,5 @@
 const express = require("express");
-const twit = require("../services/twit");
+const twit = require("../../services/twit");
 
 getSummary = (req, res) => {
   res.status(200).json({ message: "Not implemented" });

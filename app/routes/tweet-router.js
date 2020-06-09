@@ -1,5 +1,5 @@
 const express = require("express");
-const tweetCtrl = require("../controllers/tweet-ctrl");
+const tweetCtrl = require("../controllers/tweet/tweet-ctrl");
 const router = express.Router();
 
 router.get("/tweet", tweetCtrl.getSummary);
