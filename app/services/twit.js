@@ -41,7 +41,7 @@ module.exports = {
   },
 
   // TODO: Need to find out the correct API
-  get_retweet_count: function (screen_name, callback) {
+  getRetweetCount: function (screen_name, callback) {
     T.get("statuses/mentions_timeline", { screen_name: screen_name }, function (
       err,
       data,

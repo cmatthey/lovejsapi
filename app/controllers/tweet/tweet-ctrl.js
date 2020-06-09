@@ -1,5 +1,6 @@
 const express = require("express");
 const twit = require("../../services/twit");
+// import getTimeline from "../../services/twit_new_export"; //Not in use
 
 getSummary = (req, res) => {
   res.status(200).json({ message: "Not implemented" });
@@ -30,7 +31,7 @@ getReport = (req, res) => {
 
 // TODO: Need to find out the correct API
 getCount = (req, res) => {
-  twit.get_retweet_count(req.params.screen_name, function (err, status) {
+  twit.getRetweetCount(req.params.screen_name, function (err, status) {
     if (err) res.send(err);
     res.status(200).json(status);
   });
