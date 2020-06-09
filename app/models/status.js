@@ -4,11 +4,11 @@ const Schema = mongoose.Schema;
 const StatusSchema = new Schema({
   display_name: String,
   screen_name: String,
-  in_reply_to_screen_name: String,
-  location: String,
-  country: String,
-  display_screen_name: String,
   link: String,
+  retweet_count: Int,
+  favorite_count: Int,
+  created_at: String,
+  in_reply_to_screen_name: String,
   text: String,
 });
 

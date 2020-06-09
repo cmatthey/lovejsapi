@@ -10,7 +10,8 @@ const T = new Twit({
 });
 
 module.exports = {
-  get_timeline: function (screen_name, callback) {
+  // Fetch tweets and replies of a user by its screen_name
+  getTimeline: function (screen_name, callback) {
     T.get(
       "statuses/user_timeline",
       {
@@ -25,13 +26,12 @@ module.exports = {
     );
   },
 
-  get_timeline_in_csv: function (screen_name, callback) {
+  // Not in use now
+  getUserInfo: function (screen_name, callback) {
     T.get(
-      "statuses/user_timeline",
+      "users/show",
       {
         screen_name: screen_name,
-        // since_id: since_id,
-        // count: count,
       },
       function (err, data, response) {
         console.log(data);
