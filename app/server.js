@@ -2,6 +2,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const morgan = require("morgan");
+require("dotenv").config();
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 const tweetRouter = require("./routes/tweet-router");
 // const db = require("../db"); //Not in use
 // const Status = require("./models/tweet "); //Not in use
