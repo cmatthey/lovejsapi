@@ -31,7 +31,8 @@ getReport = (req, res) => {
 
 getReportAsync = async (req, res) => {
   try {
-    await twit.getTimelineAxio2(req.params.screen_name);
+    const t = await twit.getTimelineAxio(req.params.screen_name);
+    res.status(200).json(t);
   } catch (err) {
     console.log(`--Http error in getReportAsync ${err}`);
     return res.status(500).json({ message: err });
