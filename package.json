@@ -11,13 +11,14 @@
   },
   "author": "Coco",
   "dependencies": {
+    "axios": "^0.19.2",
     "body-parser": "~1.18.2",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "~4.16.1",
     "mongoose": "~5.9.18",
     "package.json": "^2.0.1",
-    "twit": "^2.2.11"
+    "querystring": "^0.2.0"
   },
   "devDependencies": {
     "morgan": "~1.9.0",
