@@ -31,14 +31,20 @@ getReport = (req, res) => {
 
 getReportAsync = async (req, res) => {
   try {
-    [err, data, response] = await twit.getTimelineAsync(req.params.screen_name);
-    // console.log(`--${response}--`, Object.prototype.toString.call(response));
-    // console.log(`--${data}--`, Object.prototype.toString.call(data));
-    res.status(200).json({ message: "not yet implemented" });
+    await twit.getTimelineAxio2(req.params.screen_name);
   } catch (err) {
     console.log(`--Http error in getReportAsync ${err}`);
-    return res.status(404).json({ message: err });
+    return res.status(500).json({ message: err });
   }
+  // try {
+  //   [err, data, response] = await twit.getTimelineAsync(req.params.screen_name);
+  //   // console.log(`--${response}--`, Object.prototype.toString.call(response));
+  //   // console.log(`--${data}--`, Object.prototype.toString.call(data));
+  //   res.status(200).json({ message: "not yet implemented" });
+  // } catch (err) {
+  //   console.log(`--Http error in getReportAsync ${err}`);
+  //   return res.status(404).json({ message: err });
+  // }
 };
 
 // TODO: Need to find out the correct API
