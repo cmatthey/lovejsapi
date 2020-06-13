@@ -37,7 +37,7 @@ getAccessToken = async function () {
 
 module.exports = {
   // Fetch tweets and replies of a user by its screen_name
-  getTimeline: async function (screen_name) {
+  getTimeline: async function (display_name, screen_name) {
     try {
       const access_token = await getAccessToken();
       const response = await axios.get("/statuses/user_timeline", {
@@ -47,9 +47,23 @@ module.exports = {
         },
       });
       if (response.status === 200) {
-        return response.data;
+        let tweetsAndReplies = [];
+        for (let [key, value] of Object.entries(response.data)) {
+          let simplfiedTweet = Object();
+          simplfiedTweet.display_name = display_name || "";
+          simplfiedTweet.screen_name = value.user.screen_name;
+          simplfiedTweet.link = `https://twitter.com/${screen_name}/status/${value.id_str}`;
+          simplfiedTweet.retweet_count = value.retweet_count;
+          simplfiedTweet.favorite_count = value.favorite_count;
+          simplfiedTweet.created_at = value.created_at;
+          simplfiedTweet.in_reply_to_screen_name =
+            value.in_reply_to_screen_name || "";
+          simplfiedTweet.lang = value.lang || "";
+          simplfiedTweet.text = value.text || "";
+          tweetsAndReplies.push(simplfiedTweet);
+        }
+        return tweetsAndReplies;
       }
-      console.log(data);
     } catch (err) {
       console.log("in getTimeline err", err);
       return response.data;
@@ -57,7 +71,19 @@ module.exports = {
   },
 
   // TODO: Need to find out the correct API
-  getRetweetCount: async function (screen_name) {
-    return await module.exports.getTimeline();
+  getRetweetCount: async function (display_name, screen_name) {
+    try {
+      let count = 0;
+      const data = await module.exports.getTimeline(display_name, screen_name);
+      for (let [key, value] of Object.entries(data)) {
+        count += value.retweet_count;
+        if (value.retweet_count !== 0) {
+          console.log("retweet_count ", value.retweet_count, " ", value.link);
+        }
+      }
+      return { count: count };
+    } catch (error) {
+      return { error: error };
+    }
   },
 };

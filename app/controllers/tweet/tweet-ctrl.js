@@ -7,38 +7,29 @@ getSummary = (req, res) => {
 };
 
 getReport = async (req, res) => {
-  let tweetsAndReplies = [];
   try {
-    const data = await twit.getTimeline(req.params.screen_name);
-    for (let [key, value] of Object.entries(data)) {
-      let simplfiedTweet = Object();
-      simplfiedTweet.display_name = req.query.display_name || "";
-      simplfiedTweet.screen_name = value.user.screen_name;
-      simplfiedTweet.link = `https://twitter.com/${req.params.screen_name}/status/${value.id_str}`;
-      simplfiedTweet.retweet_count = value.retweet_count;
-      simplfiedTweet.favorite_count = value.favorite_count;
-      simplfiedTweet.created_at = value.created_at;
-      simplfiedTweet.in_reply_to_screen_name =
-        value.in_reply_to_screen_name || "";
-      simplfiedTweet.lang = value.lang || "";
-      simplfiedTweet.text = value.text || "";
-      tweetsAndReplies.push(simplfiedTweet);
-    }
-    res.status(200).json(tweetsAndReplies);
-  } catch (err) {
-    console.log("--Http error in getReport" + err);
-    return res.status(404).json({ message: err });
+    const data = await twit.getTimeline(
+      req.query.display_name,
+      req.params.screen_name
+    );
+    res.status(200).json(data);
+  } catch (error) {
+    console.log("--Http error in getReport " + error);
+    return res.status(404).json({ error: error });
   }
 };
 
 // TODO: Need to find out the correct API
 getCount = async (req, res) => {
   try {
-    const data = await twit.getRetweetCount(req.params.screen_name);
-    return res.status(200).json({ message: data });
-  } catch (err) {
-    console.log("--Http error in getCount" + err);
-    return res.status(404).json({ message: err });
+    const data = await twit.getRetweetCount(
+      req.query.display_name,
+      req.params.screen_name
+    );
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log("--Http error in getCount " + error);
+    return res.status(404).json({ error: error });
   }
 };
 
