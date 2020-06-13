@@ -1,5 +1,6 @@
 const axios = require("axios");
 const querystring = require("querystring");
+const MAX_COUNT = 30;
 
 getAccessToken = async function () {
   const authHeader =
@@ -35,6 +36,17 @@ getAccessToken = async function () {
   }
 };
 
+getCutoffTime = function () {
+  const now = new Date();
+  const start = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1, 12)
+  );
+  const end = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12)
+  );
+  return [start, end];
+};
+
 module.exports = {
   // Fetch tweets and replies of a user by its screen_name
   getTimeline: async function (display_name, screen_name) {
@@ -43,22 +55,28 @@ module.exports = {
       const response = await axios.get("/statuses/user_timeline", {
         params: {
           screen_name: screen_name,
-          count: 30,
+          count: MAX_COUNT,
         },
       });
       let tweetsAndReplies = [];
       for (let [key, value] of Object.entries(response.data)) {
-        let simplfiedTweet = Object();
-        simplfiedTweet.display_name = display_name || "";
-        simplfiedTweet.screen_name = value.user.screen_name;
-        simplfiedTweet.link = `https://twitter.com/${screen_name}/status/${value.id_str}`;
-        simplfiedTweet.favorite_count = value.favorite_count;
-        simplfiedTweet.retweet_count = value.retweet_count;
-        simplfiedTweet.created_at = value.created_at;
-        simplfiedTweet.in_reply_to_screen_name = value.in_reply_to_screen_name;
-        simplfiedTweet.lang = value.lang;
-        simplfiedTweet.text = value.text;
-        tweetsAndReplies.push(simplfiedTweet);
+        const created_at = new Date(value.created_at);
+        const [start, end] = getCutoffTime();
+        if (created_at > start && created_at <= end) {
+          let simplfiedTweet = {};
+          simplfiedTweet.display_name = display_name || "";
+          simplfiedTweet.screen_name = value.user.screen_name;
+          simplfiedTweet.link = `https://twitter.com/${screen_name}/status/${value.id_str}`;
+          simplfiedTweet.retweeted_status = value.retweeted_status;
+          simplfiedTweet.favorite_count = value.favorite_count;
+          simplfiedTweet.retweet_count = value.retweet_count;
+          simplfiedTweet.created_at = value.created_at;
+          simplfiedTweet.in_reply_to_screen_name =
+            value.in_reply_to_screen_name;
+          simplfiedTweet.lang = value.lang;
+          simplfiedTweet.text = value.text;
+          tweetsAndReplies.push(simplfiedTweet);
+        }
       }
       return tweetsAndReplies;
     } catch (error) {
@@ -78,7 +96,7 @@ module.exports = {
         return data;
       }
       for (let [key, value] of Object.entries(data)) {
-        if (!value.in_reply_to_screen_name) {
+        if (!value.in_reply_to_screen_name && !value.retweeted_status) {
           if (value.retweet_count) {
             retweetCount += value.retweet_count;
           }
@@ -90,7 +108,6 @@ module.exports = {
       return {
         display_name: display_name,
         retweetCount: retweetCount,
-        favoriteCount: favoriteCount,
       };
     } catch (error) {
       return { error: error };
