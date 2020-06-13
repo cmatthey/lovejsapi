@@ -43,7 +43,7 @@ module.exports = {
       const response = await axios.get("/statuses/user_timeline", {
         params: {
           screen_name: screen_name,
-          count: 50,
+          count: 30,
         },
       });
       let tweetsAndReplies = [];
@@ -52,13 +52,12 @@ module.exports = {
         simplfiedTweet.display_name = display_name || "";
         simplfiedTweet.screen_name = value.user.screen_name;
         simplfiedTweet.link = `https://twitter.com/${screen_name}/status/${value.id_str}`;
-        simplfiedTweet.retweet_count = value.retweet_count;
         simplfiedTweet.favorite_count = value.favorite_count;
+        simplfiedTweet.retweet_count = value.retweet_count;
         simplfiedTweet.created_at = value.created_at;
-        simplfiedTweet.in_reply_to_screen_name =
-          value.in_reply_to_screen_name || "";
-        simplfiedTweet.lang = value.lang || "";
-        simplfiedTweet.text = value.text || "";
+        simplfiedTweet.in_reply_to_screen_name = value.in_reply_to_screen_name;
+        simplfiedTweet.lang = value.lang;
+        simplfiedTweet.text = value.text;
         tweetsAndReplies.push(simplfiedTweet);
       }
       return tweetsAndReplies;
@@ -72,18 +71,27 @@ module.exports = {
   // TODO: Need to find out the correct API
   getRetweetCount: async function (display_name, screen_name) {
     try {
-      let count = 0;
+      let retweetCount = 0;
+      let favoriteCount = 0;
       const data = await module.exports.getTimeline(display_name, screen_name);
       if ("error" in data) {
         return data;
       }
       for (let [key, value] of Object.entries(data)) {
-        count += value.retweet_count;
-        if (value.retweet_count !== 0) {
-          console.log("retweet_count ", value.retweet_count, " ", value.link);
+        if (!value.in_reply_to_screen_name) {
+          if (value.retweet_count) {
+            retweetCount += value.retweet_count;
+          }
+          if (value.favoriteCount !== 0) {
+            favoriteCount += value.favorite_count;
+          }
         }
       }
-      return { display_name: display_name, count: count };
+      return {
+        display_name: display_name,
+        retweetCount: retweetCount,
+        favoriteCount: favoriteCount,
+      };
     } catch (error) {
       return { error: error };
     }
