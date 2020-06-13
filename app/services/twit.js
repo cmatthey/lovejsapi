@@ -63,7 +63,6 @@ module.exports = {
       }
       return tweetsAndReplies;
     } catch (error) {
-      // console.log("in getTimeline err", error);
       return {
         error: { code: error.response.status, message: error.response.data },
       };
