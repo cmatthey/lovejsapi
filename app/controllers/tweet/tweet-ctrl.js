@@ -12,10 +12,15 @@ getReport = async (req, res) => {
       req.query.display_name,
       req.params.screen_name
     );
-    res.status(200).json(data);
+    console.log("--data in getReport ", data);
+    if ("error" in data) {
+      res.status(data.error.code).json(data.error.message);
+    } else {
+      res.status(200).json(data);
+    }
   } catch (error) {
     console.log("--Http error in getReport " + error);
-    return res.status(404).json({ error: error });
+    return res.status(500).json({ message: "Unknown error" });
   }
 };
 
@@ -26,7 +31,11 @@ getCount = async (req, res) => {
       req.query.display_name,
       req.params.screen_name
     );
-    return res.status(200).json(data);
+    if ("error" in data) {
+      res.status(data.error.code).json(data.error.message);
+    } else {
+      res.status(200).json(data);
+    }
   } catch (error) {
     console.log("--Http error in getCount " + error);
     return res.status(404).json({ error: error });

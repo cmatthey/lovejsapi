@@ -46,27 +46,27 @@ module.exports = {
           count: 50,
         },
       });
-      if (response.status === 200) {
-        let tweetsAndReplies = [];
-        for (let [key, value] of Object.entries(response.data)) {
-          let simplfiedTweet = Object();
-          simplfiedTweet.display_name = display_name || "";
-          simplfiedTweet.screen_name = value.user.screen_name;
-          simplfiedTweet.link = `https://twitter.com/${screen_name}/status/${value.id_str}`;
-          simplfiedTweet.retweet_count = value.retweet_count;
-          simplfiedTweet.favorite_count = value.favorite_count;
-          simplfiedTweet.created_at = value.created_at;
-          simplfiedTweet.in_reply_to_screen_name =
-            value.in_reply_to_screen_name || "";
-          simplfiedTweet.lang = value.lang || "";
-          simplfiedTweet.text = value.text || "";
-          tweetsAndReplies.push(simplfiedTweet);
-        }
-        return tweetsAndReplies;
+      let tweetsAndReplies = [];
+      for (let [key, value] of Object.entries(response.data)) {
+        let simplfiedTweet = Object();
+        simplfiedTweet.display_name = display_name || "";
+        simplfiedTweet.screen_name = value.user.screen_name;
+        simplfiedTweet.link = `https://twitter.com/${screen_name}/status/${value.id_str}`;
+        simplfiedTweet.retweet_count = value.retweet_count;
+        simplfiedTweet.favorite_count = value.favorite_count;
+        simplfiedTweet.created_at = value.created_at;
+        simplfiedTweet.in_reply_to_screen_name =
+          value.in_reply_to_screen_name || "";
+        simplfiedTweet.lang = value.lang || "";
+        simplfiedTweet.text = value.text || "";
+        tweetsAndReplies.push(simplfiedTweet);
       }
-    } catch (err) {
-      console.log("in getTimeline err", err);
-      return response.data;
+      return tweetsAndReplies;
+    } catch (error) {
+      // console.log("in getTimeline err", error);
+      return {
+        error: { code: error.response.status, message: error.response.data },
+      };
     }
   },
 
@@ -75,13 +75,16 @@ module.exports = {
     try {
       let count = 0;
       const data = await module.exports.getTimeline(display_name, screen_name);
+      if ("error" in data) {
+        return data;
+      }
       for (let [key, value] of Object.entries(data)) {
         count += value.retweet_count;
         if (value.retweet_count !== 0) {
           console.log("retweet_count ", value.retweet_count, " ", value.link);
         }
       }
-      return { count: count };
+      return { display_name: display_name, count: count };
     } catch (error) {
       return { error: error };
     }
