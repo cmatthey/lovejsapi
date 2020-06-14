@@ -1,42 +1,51 @@
 const axios = require("axios");
 const querystring = require("querystring");
-const MAX_COUNT = 30;
 
+const MAX_TWEET_COUNT = 30;
+let isTwitterTokenSet;
+
+// Library to handle Twitter requests
+
+// Get Twitter OAuth 2.0 Bearer Token https://developer.twitter.com/en/docs/basics/authentication/oauth-2-0
 getAccessToken = async function () {
-  const authHeader =
-    "Basic " +
-    Buffer.from(
-      process.env.CONSUMER_KEY + ":" + process.env.CONSUMER_SECRET
-    ).toString("base64");
-  try {
-    const response = await axios.post(
-      "https://api.twitter.com/oauth2/token",
-      querystring.stringify({ grant_type: "client_credentials" }),
-      {
-        headers: {
-          Authorization: authHeader,
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+  if (!isTwitterTokenSet) {
+    const authHeader =
+      "Basic " +
+      Buffer.from(
+        process.env.CONSUMER_KEY + ":" + process.env.CONSUMER_SECRET
+      ).toString("base64");
+    try {
+      const response = await axios.post(
+        "https://api.twitter.com/oauth2/token",
+        querystring.stringify({ grant_type: "client_credentials" }),
+        {
+          headers: {
+            Authorization: authHeader,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
+      if (response.status === 200) {
+        const access_token = response.data.access_token;
+        if (access_token !== null) {
+          axios.defaults.baseURL = "https://api.twitter.com/1.1";
+          axios.defaults.headers.common["Authorization"] =
+            "Bearer " + access_token;
+          axios.defaults.headers.post["Content-Type"] = "application/json";
+        }
+        isTwitterTokenSet = true;
+        return access_token;
+      } else {
+        throw response.data;
       }
-    );
-    if (response.status === 200) {
-      const access_token = response.data.access_token;
-      if (access_token !== null) {
-        axios.defaults.baseURL = "https://api.twitter.com/1.1";
-        axios.defaults.headers.common["Authorization"] =
-          "Bearer " + access_token;
-        axios.defaults.headers.post["Content-Type"] = "application/json";
-      }
-      return access_token;
-    } else {
-      throw response.data;
+    } catch (error) {
+      throw error;
     }
-  } catch (err) {
-    throw err;
   }
 };
 
-getCutoffTime = function () {
+// Time window is between yesterday noon and today noon in UTC time
+getTimeWindow = function () {
   const now = new Date();
   const start = new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1, 12)
@@ -48,20 +57,20 @@ getCutoffTime = function () {
 };
 
 module.exports = {
-  // Fetch tweets and replies of a user by its screen_name
+  // Fetch tweets and replies of a user by screen_name
   getTimeline: async function (display_name, screen_name) {
     try {
-      const access_token = await getAccessToken();
+      await getAccessToken();
       const response = await axios.get("/statuses/user_timeline", {
         params: {
           screen_name: screen_name,
-          count: MAX_COUNT,
+          count: MAX_TWEET_COUNT,
         },
       });
       let tweetsAndReplies = [];
       for (let [key, value] of Object.entries(response.data)) {
         const created_at = new Date(value.created_at);
-        const [start, end] = getCutoffTime();
+        const [start, end] = getTimeWindow();
         if (created_at > start && created_at <= end) {
           let simplfiedTweet = {};
           simplfiedTweet.display_name = display_name || "";
@@ -86,7 +95,7 @@ module.exports = {
     }
   },
 
-  // TODO: Need to find out the correct API
+  // Return retweet count for tweets only, not retweets or replies.
   getRetweetCount: async function (display_name, screen_name) {
     try {
       let retweetCount = 0;
