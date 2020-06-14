@@ -82,6 +82,7 @@ module.exports = {
           simplfiedTweet.created_at = value.created_at;
           simplfiedTweet.in_reply_to_screen_name =
             value.in_reply_to_screen_name;
+          simplfiedTweet.location = value.user.location;
           simplfiedTweet.lang = value.lang;
           simplfiedTweet.text = value.text;
           tweetsAndReplies.push(simplfiedTweet);
@@ -118,6 +119,19 @@ module.exports = {
         display_name: display_name,
         retweetCount: retweetCount,
       };
+    } catch (error) {
+      return { error: error };
+    }
+  },
+
+  // Return a downloadable csv file
+  getCsv: async function (display_name, screen_name) {
+    try {
+      const data = await module.exports.getTimeline(display_name, screen_name);
+      const count = await module.exports.getRetweetCount(
+        display_name,
+        screen_name
+      );
     } catch (error) {
       return { error: error };
     }

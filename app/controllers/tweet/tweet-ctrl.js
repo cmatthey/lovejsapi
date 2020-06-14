@@ -1,4 +1,3 @@
-// const express = require("express");
 const tweet = require("../../services/tweet");
 
 getSummary = (req, res) => {
@@ -17,12 +16,11 @@ getReport = async (req, res) => {
       res.status(200).json(data);
     }
   } catch (error) {
-    console.log("--in getReport ", error);
+    console.log("Error in getReport ", error);
     return res.status(500).json({ message: "Unknown error" });
   }
 };
 
-// TODO: Need to find out the correct API
 getCount = async (req, res) => {
   try {
     const data = await tweet.getRetweetCount(
@@ -35,13 +33,30 @@ getCount = async (req, res) => {
       res.status(200).json(data);
     }
   } catch (error) {
-    console.log("--in getCount ", error);
-    return res.status(404).json({ error: error });
+    console.log("Error in getCount ", error);
+    return res.status(500).json({ message: "Unknown error" });
   }
 };
 
 toCsv = async (req, res) => {
-  res.status(200).json({ message: "Not implemented" });
+  try {
+    const data = await tweet.toCsv(
+      req.query.display_name,
+      req.params.screen_name
+    );
+    if (data instanceof Object && "error" in data) {
+      res.status(data.error.code).json(data.error.message);
+    } else {
+      res
+        .status(200)
+        .header("Content-Disposition", "attachment;filename=data.csv") //TODO
+        .type("text/csv")
+        .send(data);
+    }
+  } catch (error) {
+    console.log("Error in toCsv ", error);
+    return res.status(500).json({ message: "Unknown error" });
+  }
 };
 
 toGoogleDocs = async (req, res) => {
