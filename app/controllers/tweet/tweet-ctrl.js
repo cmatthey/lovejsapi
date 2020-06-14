@@ -1,6 +1,5 @@
 // const express = require("express");
-const twit = require("../../services/twit");
-// import getTimeline from "../../services/twit_new_export"; //Not in use
+const tweet = require("../../services/tweet");
 
 getSummary = (req, res) => {
   res.status(200).json({ message: "Not implemented" });
@@ -8,7 +7,7 @@ getSummary = (req, res) => {
 
 getReport = async (req, res) => {
   try {
-    const data = await twit.getTimeline(
+    const data = await tweet.getTimeline(
       req.query.display_name,
       req.params.screen_name
     );
@@ -26,7 +25,7 @@ getReport = async (req, res) => {
 // TODO: Need to find out the correct API
 getCount = async (req, res) => {
   try {
-    const data = await twit.getRetweetCount(
+    const data = await tweet.getRetweetCount(
       req.query.display_name,
       req.params.screen_name
     );
