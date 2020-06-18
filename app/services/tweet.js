@@ -44,19 +44,29 @@ getAccessToken = async function () {
 };
 
 // Time window is between yesterday noon and today noon in UTC time
-getTimeWindow = function () {
-  const now = new Date();
+getTimeWindow = function (reportTime = new Date()) {
   const start = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1, 12)
+    Date.UTC(
+      reportTime.getUTCFullYear(),
+      reportTime.getUTCMonth(),
+      reportTime.getUTCDate() - 1,
+      12
+    )
   );
   const end = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12)
+    Date.UTC(
+      reportTime.getUTCFullYear(),
+      reportTime.getUTCMonth(),
+      reportTime.getUTCDate(),
+      12
+    )
   );
+  console.log("rt", reportTime, start, end);
   return [start, end];
 };
 
 // Fetch tweets, retweets and replies of a user by screen_name
-getTimeline = async function (display_name, screen_name) {
+getTimeline = async function (display_name, screen_name, reportTime) {
   try {
     await getAccessToken();
     const response = await axios.get("/statuses/user_timeline", {
@@ -65,7 +75,9 @@ getTimeline = async function (display_name, screen_name) {
         count: MAX_TWEET_COUNT,
       },
     });
-    const [start, end] = getTimeWindow();
+    const [start, end] = getTimeWindow(
+      reportTime ? new Date(reportTime) : null
+    );
     let tweetsAndReplies = response.data
       .filter(
         (t) => new Date(t.created_at) > start && new Date(t.created_at) < end
@@ -94,9 +106,13 @@ getTimeline = async function (display_name, screen_name) {
 };
 
 // Fetch tweets and replies of a user by screen_name
-getReport = async function (display_name, screen_name) {
+getReport = async function (display_name, screen_name, reportTime) {
   try {
-    const data = await module.exports.getTimeline(display_name, screen_name);
+    const data = await module.exports.getTimeline(
+      display_name,
+      screen_name,
+      reportTime
+    );
     if ("error" in data) {
       return data;
     }
@@ -137,11 +153,13 @@ toCsv = async function (display_name, screen_name) {
       return data;
     }
     let csvStr =
-      "display_name|screen_name|link|favorite_count|retweet_count|created_at|in_reply_to_screen_name|location|lang|text\n";
-    data.map(
-      (t) =>
-        (csvStr += `"${t.display_name}"|"${t.screen_name}"|"${t.link}"|"${t.favorite_count}"|"${t.retweet_count}"|"${t.created_at}"|"${t.in_reply_to_screen_name}"|"${t.location}"|"${t.lang}"|"${t.text}"\n`)
-    );
+      "display_name|retweet_count|link|screen_name|created_at|in_reply_to_screen_name|location|lang|text\n";
+    data
+      .filter((t) => t.retweet_count > 0)
+      .map(
+        (t) =>
+          (csvStr += `"${t.display_name}"|"${t.retweet_count}"|"${t.link}"|"${t.screen_name}"|"${t.created_at}"|"${t.in_reply_to_screen_name}"|"${t.location}"|"${t.lang}"|"${t.text}"\n`)
+      );
     return csvStr;
   } catch (error) {
     console.log(error);

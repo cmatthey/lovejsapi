@@ -8,7 +8,8 @@ getReport = async (req, res) => {
   try {
     const data = await tweet.getReport(
       req.query.display_name,
-      req.params.screen_name
+      req.params.screen_name,
+      req.query.report_time
     );
     if ("error" in data) {
       res.status(data.error.code).json(data.error.message);
@@ -39,6 +40,10 @@ getCount = async (req, res) => {
 };
 
 toCsv = async (req, res) => {
+  const now = new Date();
+  const fname = `${now.getUTCFullYear()}-${
+    now.getUTCMonth() + 1
+  }-${now.getUTCDate()}-${req.params.screen_name}`;
   try {
     const data = await tweet.toCsv(
       req.query.display_name,
@@ -49,7 +54,7 @@ toCsv = async (req, res) => {
     } else {
       res
         .status(200)
-        .header("Content-Disposition", "attachment;filename=data.csv") //TODO
+        .header("Content-Disposition", `attachment;filename=${fname}.csv`) //TODO
         .type("text/csv")
         .send(data);
     }
