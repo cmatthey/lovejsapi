@@ -6,7 +6,7 @@ getSummary = (req, res) => {
 
 getReport = async (req, res) => {
   try {
-    const data = await tweet.getTimeline(
+    const data = await tweet.getReport(
       req.query.display_name,
       req.params.screen_name
     );
