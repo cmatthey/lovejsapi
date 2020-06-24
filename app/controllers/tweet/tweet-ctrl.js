@@ -68,10 +68,26 @@ toGoogleDocs = async (req, res) => {
   res.status(200).json({ message: "Not implemented" });
 };
 
+getLimit = async (req, res) => {
+  try {
+    const data = await tweet.getLimitRate();
+    console.log(data);
+    if ("error" in data) {
+      res.status(data.error.code).json(data.error.message);
+    } else {
+      res.status(200).json(data);
+    }
+  } catch (error) {
+    console.log("Error in getLimit ", error);
+    return res.status(500).json({ message: "Unknown error" });
+  }
+};
+
 module.exports = {
   getSummary,
   getReport,
   getCount,
   toCsv,
   toGoogleDocs,
+  getLimit,
 };

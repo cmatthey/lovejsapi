@@ -2,46 +2,10 @@ const axios = require("axios");
 const querystring = require("querystring");
 
 const MAX_TWEET_COUNT = 30;
-let isTwitterTokenSet;
+let isTwitterTokenSet = false;
+const tauth = require("./tauth");
 
 // Library to handle Twitter requests
-
-// Get Twitter OAuth 2.0 Bearer Token https://developer.twitter.com/en/docs/basics/authentication/oauth-2-0
-getAccessToken = async function () {
-  if (!isTwitterTokenSet) {
-    const authHeader = `Basic ${Buffer.from(
-      `${process.env.CONSUMER_KEY}:${process.env.CONSUMER_SECRET}`
-    ).toString("base64")}`;
-    try {
-      const response = await axios.post(
-        "https://api.twitter.com/oauth2/token",
-        querystring.stringify({ grant_type: "client_credentials" }),
-        {
-          headers: {
-            Authorization: authHeader,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        }
-      );
-      if (response.status === 200) {
-        const access_token = response.data.access_token;
-        if (access_token !== null) {
-          axios.defaults.baseURL = "https://api.twitter.com/1.1";
-          axios.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${access_token}`;
-          axios.defaults.headers.post["Content-Type"] = "application/json";
-        }
-        isTwitterTokenSet = true;
-        return access_token;
-      } else {
-        throw response.data;
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
-};
 
 // Time window is between yesterday noon and today noon in UTC time
 getTimeWindow = function (reportTime = new Date()) {
@@ -68,7 +32,7 @@ getTimeWindow = function (reportTime = new Date()) {
 // Fetch tweets, retweets and replies of a user by screen_name
 getTimeline = async function (display_name, screen_name, reportTime) {
   try {
-    await getAccessToken();
+    await tauth.getAccessTokenDev();
     const response = await axios.get("/statuses/user_timeline", {
       params: {
         screen_name: screen_name,
@@ -113,10 +77,15 @@ getReport = async function (display_name, screen_name, reportTime) {
       screen_name,
       reportTime
     );
+    // console.log(data);
     if ("error" in data) {
       return data;
     }
-    return data.filter((t) => t.retweeted_status === false);
+    return data.filter(
+      (t) =>
+        (t.retweeted_status === false && t.retweet_count > 0) ||
+        t.favorite_count > 0
+    );
   } catch (error) {
     return {
       error: { code: error.response.status, message: error.response.data },
@@ -169,4 +138,25 @@ toCsv = async function (display_name, screen_name) {
   }
 };
 
-module.exports = { getTimeline, getReport, getRetweetCount, toCsv };
+getLimitRate = async function () {
+  try {
+    // console.log("token set?", isTwitterTokenSet);
+    const axios = await tauth.getAccessTokenDev();
+    const response = await axios.get("/application/rate_limit_status.json");
+    // console.group("getLimitRate", response, response.data);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    return {
+      error: { code: error.response.status, message: error.response.data },
+    };
+  }
+};
+
+module.exports = {
+  getTimeline,
+  getReport,
+  getRetweetCount,
+  toCsv,
+  getLimitRate,
+};
