@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const morgan = require("morgan");
+// const morgan = require("morgan");
 const tweetRouter = require("./routes/tweet-router");
 // const db = require("../db"); //Not in use
 // const Status = require("./models/tweet "); //Not in use
@@ -13,7 +13,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const app = express();
-app.use(morgan("dev")); // log requests to the console
+// app.use(morgan("dev")); // log requests to the console
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(bodyParser.json());
